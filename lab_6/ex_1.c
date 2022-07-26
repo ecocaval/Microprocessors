@@ -1,12 +1,14 @@
 /**
-    @brief Compile e execute o programa abaixo que transmite, serialmente, a cadeia de
-    16 caracteres: "Microcontrolador". A transmissão é assíncrona sem envio de bit
-    de paridade à taxa de 9600 bauds (bit/s). Para visualizar dados transmitidos,
-    selecionar no menu: View, Serial Windows, UART #1. obs: Informar cristal a
-    ser utilizado no hardware (11,059 MHz) para o Keil: Project - Options for Target
-    (ou Alt + F7); modificar o campo Xtal.
+    @brief Modifique o programa acima para também transmitir o bit de paridade de
+    cada dado enviado.
 
-    SM0|SM1 MODO 1 + 9600 baud
+    Resolucao: no caso do exercicio anterior os flip flops SM0 e SM1 do registrador
+    SCON estão setados para trabalhar no modo 1, que é assincrono e utiliza 10 bits. 
+    Para que utilizemos um bit de paridade com a frequência de 9600 baud (variável) 
+    será necessário a utilização do modo 3 em SM0/SM1. Ademais torna-se necessário 
+    setar TB8 = '1'.
+
+    SM0|SM1 MODO 3 + 9600 baud
 */
 
 #include <reg51.h>
@@ -29,7 +31,7 @@
 #define SET_TB8_TO_0          0x00 // 0000 0000
 #define SET_SM2_TO_1          0x20 // 0010 0000
 #define SET_REN_TO_1          0x10 // 0001 0000
-#define SET_TB8_TO_1          0x00 // 0000 1000
+#define SET_TB8_TO_1          0x08 // 0000 1000
 
 #define TH0_VALUE 0x00 // 0000 0000
 #define TL0_VALUE 0x00 // 0000 0000
@@ -75,10 +77,10 @@ void scon_init(void)
 {
     unsigned char SCON_aux;
 
-    scon_config.mode = SM0_SM1_MODE_1;
+    scon_config.mode = SM0_SM1_MODE_3;
     scon_config.SM2 = SET_SM2_TO_0;
     scon_config.REN = SET_REN_TO_0;
-    scon_config.TB8 = SET_TB8_TO_0;
+    scon_config.TB8 = SET_TB8_TO_1;
 
     SCON_aux = (scon_config.mode | scon_config.SM2 | 
                 scon_config.REN | scon_config.TB8);
@@ -103,10 +105,10 @@ void main(void)
     ES = 1; 
     EA = 1; 
 
-    TH1 = 0xFD; // recharge value for 9600 baud rate, considering clk = 11,059 MHz;
+    TH1 = 0xFD; // recharge value for 9600 baud rate
     TR1 = 1; 
 
-    SBUF = *message_ptr; // to send and receive data we use SBUF 
+    SBUF = *message_ptr; 
     aux++;
 
     while (1) 
