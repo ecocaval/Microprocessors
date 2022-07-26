@@ -3,7 +3,10 @@
     quadrada no pino 3 da porta P2 com período de 960 ciclos de instrução
     (ou seja, alterar o nível lógico do pino 3 da porta P2) utilizando o Timer1 no modo 0.
 
-    Resolucao: Como utilizaremos o modo 0, TL1 terá apenas 5 bits e TH1 será incrementado a cada 32 contagens de TL1, pois 2^5 = 32. Como queremos que haja overflow em 960 ciclos de instrução para termos 960/32 = 30 contagens "completas" de TL1. Desta forma TH1 deve ser recarregado com o valor: 2^8 - 30 = 256 - 30 = 226 = 0xE2;
+    Resolucao: Como utilizaremos o modo 0, TL1 terá apenas 5 bits e TH1 será incrementado 
+    a cada 32 contagens de TL1, pois 2^5 = 32. Como queremos que haja overflow em 960 ciclos 
+    de instrução para termos 960/32 = 30 contagens "completas" de TL1. Desta forma TH1 deve 
+    ser recarregado com o valor: 2^8 - 30 = 256 - 30 = 226 = 0xE2;
 
     TIMER 1 + MODO 0 + 960 ciclos de inst.
              (13 bits)
