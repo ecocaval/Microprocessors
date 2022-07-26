@@ -6,7 +6,7 @@
     Resolucao: Como utilizaremos o modo 0, TL1 terá apenas 5 bits e TH1 será incrementado a cada 32 contagens de TL1, pois 2^5 = 32. Como queremos que haja overflow em 960 ciclos de instrução para termos 960/32 = 30 contagens "completas" de TL1. Desta forma TH1 deve ser recarregado com o valor: 2^8 - 30 = 256 - 30 = 226 = 0xE2;
 
     TIMER 1 + MODO 0 + 960 ciclos de inst.
-             (13 bits) -> auto-recarga
+             (13 bits)
 */
 
 #include <reg51.h>
@@ -68,7 +68,8 @@ void main(void)
     EA = 1; 
     TR1 = 1;
 
-    while(1) {
+    while(1) 
+    {
         while (state == 0); 
         state = 0;
         WAVE_PORT ^= 1; // XOR inverter

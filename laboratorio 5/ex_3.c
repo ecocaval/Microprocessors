@@ -70,7 +70,8 @@ void main(void)
     EA = 1; 
     TR0 = 1;
 
-    while(1) {
+    while(1) 
+    {
         while (cycle_aux%4 != 0); 
         cycle_aux = 0;
         P1 = *(message_ptr+aux++);

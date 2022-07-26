@@ -80,7 +80,8 @@ void main(void)
 
     TR0 = 1;
 
-    while(1) {
+    while(1) 
+    {
         while(state == 0); 
         if(state == 1)
         {
