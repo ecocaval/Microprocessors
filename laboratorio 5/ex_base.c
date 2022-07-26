@@ -4,6 +4,7 @@
     utilizando para TMOD_auxorização o timer 0 no modo 1.
 
     TIMER 0 + MODO 1 + 100 pulsos de clock
+             (16 bits)
 */
 
 #include <reg51.h>
@@ -80,6 +81,10 @@ void main (void)
     } 
 } 
 
+/* 
+   remember interrupt 1 => timer 0
+            interrupt 3 => timer 1
+*/
 void c51_tmr0 (void) interrupt 1 
 {
     TH0 = TH0_VALUE;

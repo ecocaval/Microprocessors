@@ -8,6 +8,7 @@
     Desta forma, são necessárias 20 contagens completas de TL1 para contabilizar 640 pulsos de instrução. TH1 deverá ser settado de forma a garantir overflow (TFx = 1) quando estes 20 ciclos tiverem sido completos. Desta forma TH1 = 0xFF - 20 = 256 - 20 = 236 = 0xEC ;
 
     TIMER 1 + MODO 0 + 640 pulsos de clock
+            (13 bits)
 */
 
 #include <reg51.h>
