@@ -1,7 +1,7 @@
 /**
     @brief Refaça o programa anterior, utilizando o timer0 no modo 2, para que cada caractere seja enviado para a porta P1 em intervalos de 640 ciclos de instrução (clock do cristal/12).
 
-    resolução: No modo 2 são utilizados apenas 8 bits, apenas os bits de TL0 irão variar, o valor settado em TH0 servirá como referencia de recarga para TL0 quando houve overflow neste byte. No modo 2 o máximo valor que podemos contar com a utilização de TL0 é 2^8 ou seja 256. Como queremos fazer a contagem de 640 pulsos a estratégia escolhida foi separar esses 640 pulsos em contagens intermediárias de 160 pulsos. Para que sejam contados 160 ciclos de inst. em cada ciclo o valor de recarga em TH0 deverá ser de: 256 - 160 = 96 = 0x60;
+    Resolucao: No modo 2 são utilizados apenas 8 bits, apenas os bits de TL0 irão variar, o valor settado em TH0 servirá como referencia de recarga para TL0 quando houve overflow neste byte. No modo 2 o máximo valor que podemos contar com a utilização de TL0 é 2^8 ou seja 256. Como queremos fazer a contagem de 640 pulsos a estratégia escolhida foi separar esses 640 pulsos em contagens intermediárias de 160 pulsos. Para que sejam contados 160 ciclos de inst. em cada ciclo o valor de recarga em TH0 deverá ser de: 256 - 160 = 96 = 0x60;
 
     TIMER 0 + MODO 2 + 640 ciclos de inst.
              (8 bits) -> auto-recarga

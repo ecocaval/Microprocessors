@@ -1,9 +1,9 @@
 /**
-    @brief Refaça o programa anterior, utilizando o timer1 no modo 0, 
+    @brief Refaça o programa ex_base.c, utilizando o timer1 no modo 0, 
     para que cada caractere seja enviado em intervalos de 640 ciclos
     de instrução (clock do cristal/12).
 
-    resolução: no modo 0 serão utilizados apenas 5 bits em TL1 e 8 bits
+    Resolucao: no modo 0 serão utilizados apenas 5 bits em TL1 e 8 bits
     em TH1, desta forma o valor máximo armazenado em TL1 será 2^5 = 32.
     Desta forma, são necessárias 20 contagens completas de TL1 para contabilizar 640 ciclos de instrução. TH1 deverá ser settado de forma a garantir overflow (TFx = 1) quando estes 20 ciclos tiverem sido completos. Desta forma TH1 = 0xFF - 20 = 256 - 20 = 236 = 0xEC ;
 

@@ -1,10 +1,12 @@
 /**
-    @brief Utilize o timer 0 no modo 2, para enviar os caracteres da mensagem "Microcontrolador" em intervalos de 160 ciclos de instrução para a porta P1. Caso ocorra interrupção externa 1 (solicitada por borda de descida), e sempre que a mesma ocorrer, ler dado da porta P2 (a ser especificado pelo usuário); este valor deve ser utilizado pelo timer 0 no modo 2 para determinar o valor de início de contagem em TH0.
+    @brief Acrescente ao programa do exercício 3, a geração de uma onda
+    quadrada no pino 3 da porta P2 com período de 960 ciclos de instrução
+    (ou seja, alterar o nível lógico do pino 3 da porta P2) utilizando o Timer1 no modo 0.
 
-    resolução: Para que sejam contados 160 ciclos de instrução em cada ciclo o valor de recarga em TH0 deverá ser de: 256 - 160 = 96 = 0x60;
+    Resolucao: Como utilizaremos o modo 0, TL1 terá apenas 5 bits e TH1 será incrementado a cada 32 contagens de TL1, pois 2^5 = 32. Como queremos que haja overflow em 960 ciclos de instrução para termos 960/32 = 30 contagens "completas" de TL1. Desta forma TH1 deve ser recarregado com o valor: 2^8 - 30 = 256 - 30 = 226 = 0xE2;
 
-    TIMER 0 + MODO 2 + 160 ciclos de inst.
-             (8 bits) -> auto-recarga
+    TIMER 1 + MODO 0 + 960 ciclos de inst.
+             (13 bits) -> auto-recarga
 */
 
 #include <reg51.h>
@@ -18,16 +20,11 @@
 #define TMR_CNTR_GATE_LOW     0x00 // 0000 0000
 #define TMR_CNTR_GATE_HIGH    0x08 // 0000 1000
 
-#define TH0_VALUE 0x60 // 0110 0000
-#define TL0_VALUE 0x60 // 0110 0000
+#define TH0_VALUE 0x00 // 0000 0000
+#define TL0_VALUE 0x00 // 0000 0000
 
-#define TH1_VALUE 0x00 // 0000 0000
+#define TH1_VALUE 0xE2 // 1110 0010
 #define TL1_VALUE 0x00 // 0000 0000
-
-#define MESSAGE_TO_SEND "Microcontrolador"
-
-#define P2_SET_BY_USER 0xAA /* just an example value, this constant 
-                               must be defined by the user */
 
 struct TMOD_init_struct 
 { 
@@ -40,69 +37,45 @@ void timer_init(void)
 {
     unsigned char TMOD_aux;
 
-    timer_1.mode = 0x00;
-    timer_1.cntr_tmr = 0x00;
-    timer_1.gate = 0x00;
+    timer_1.mode = TMR_CNTR_MODE_0;
+    timer_1.cntr_tmr = TMR_CNTR_SET_TO_TMR;
+    timer_1.gate = TMR_CNTR_GATE_LOW;
 
     TMOD_aux = (timer_1.mode | timer_1.cntr_tmr | timer_1.gate) << 4;
 
-    timer_0.mode = TMR_CNTR_MODE_2; 
-    timer_0.cntr_tmr = TMR_CNTR_SET_TO_TMR;  
-    timer_0.gate = TMR_CNTR_GATE_LOW; 
+    timer_0.mode = 0x00; 
+    timer_0.cntr_tmr = 0x00;  
+    timer_0.gate = 0x00; 
 
     TMOD = TMOD_aux | (timer_0.mode | timer_0.cntr_tmr | timer_0.gate);
  }
 
-void c51_tmr0(void);
-void c51_ext1(void);
+void c51_tmr1(void);
+
+sbit WAVE_PORT = P2^3; // the wave will be transmitted via P2^3 port 
 
 unsigned char state = 0;
 
 void main(void) 
 {
-    unsigned char code message[]= MESSAGE_TO_SEND;
-    unsigned char code *message_ptr;
-    unsigned char aux = 0;
-
-    message_ptr = message;
-
-    P2 = P2_SET_BY_USER;
-
     timer_init();
-    TH0 = TH0_VALUE; 
-    TL0 = TL0_VALUE; 
+    TH1 = TH1_VALUE; 
+    TL1 = TL1_VALUE; 
 
-    ET0 = 1;
-    EX1 = 1;
+    WAVE_PORT = 0;
+
+    ET1 = 1;
     EA = 1; 
-
-    IT1 = 1; /* external interrupt 1 will be sensite to falling edge  */
-
-    TR0 = 1;
+    TR1 = 1;
 
     while(1) {
-        while(state == 0); 
-        if(state == 1)
-        {
-            if(state != 2) state = 0; /* tests if external interruption was set 
-                                         while "if(state = 1)" code is running */
-            P1 = *(message_ptr+aux++);
-            if (aux == 16) aux = 0;
-        }
-        if (state == 2)
-        {
-            state = 0;
-            TH0 = P2;
-        }
+        while (state == 0); 
+        state = 0;
+        WAVE_PORT ^= 1; // XOR inverter
     } 
 } 
 
-void c51_tmr0(void) interrupt 1 
+void c51_tmr1(void) interrupt 3 
 {
-    state = 1;
-} 
-
-void c51_ext1(void) interrupt 2 
-{
-    state = 2;
+    state++;
 } 
