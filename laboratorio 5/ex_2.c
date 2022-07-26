@@ -5,9 +5,9 @@
 
     resolução: no modo 0 serão utilizados apenas 5 bits em TL1 e 8 bits
     em TH1, desta forma o valor máximo armazenado em TL1 será 2^5 = 32.
-    Desta forma, são necessárias 20 contagens completas de TL1 para contabilizar 640 pulsos de instrução. TH1 deverá ser settado de forma a garantir overflow (TFx = 1) quando estes 20 ciclos tiverem sido completos. Desta forma TH1 = 0xFF - 20 = 256 - 20 = 236 = 0xEC ;
+    Desta forma, são necessárias 20 contagens completas de TL1 para contabilizar 640 ciclos de instrução. TH1 deverá ser settado de forma a garantir overflow (TFx = 1) quando estes 20 ciclos tiverem sido completos. Desta forma TH1 = 0xFF - 20 = 256 - 20 = 236 = 0xEC ;
 
-    TIMER 1 + MODO 0 + 640 pulsos de clock
+    TIMER 1 + MODO 0 + 640 ciclos de inst.
             (13 bits)
 */
 
@@ -54,11 +54,11 @@ void timer_init(void)
     TMOD = TMOD_aux | (timer_0.mode | timer_0.cntr_tmr | timer_0.gate);
  }
 
-void c51_tmr1 (void);
+void c51_tmr1(void);
 
 unsigned char state = 0;
 
-void main (void) 
+void main(void) 
 {
     unsigned char code message[]= MESSAGE_TO_SEND;
     unsigned char code *message_ptr;
@@ -74,7 +74,7 @@ void main (void)
     EA = 1; 
     TR1 = 1;
 
-    while (1) {
+    while(1) {
         while (state == 0);
         state = 0;
         P1 = *(message_ptr+aux++);
@@ -82,7 +82,7 @@ void main (void)
     } 
 } 
 
-void c51_tmr1 (void) interrupt 3 
+void c51_tmr1(void) interrupt 3 
 {
     TH1 = TH1_VALUE; 
     TL1 = TL1_VALUE; 

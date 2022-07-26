@@ -1,9 +1,9 @@
 /**
-    @brief Refaça o programa anterior, utilizando o timer0 no modo 2, para que cada caractere seja enviado para a porta P1 em intervalos de 640 ciclos de instrução (clock do cristal/12).
+    @brief Utilize o timer 0 no modo 2, para enviar os caracteres da mensagem "Microcontrolador" em intervalos de 160 ciclos de instrução para a porta P1. Caso ocorra interrupção externa 1 (solicitada por borda de descida), e sempre que a mesma ocorrer, ler dado da porta P2 (a ser especificado pelo usuário); este valor deve ser utilizado pelo timer 0 no modo 2 para determinar o valor de início de contagem em TH0.
 
-    resolução: No modo 2 são utilizados apenas 8 bits, apenas os bits de TL0 irão variar, o valor settado em TH0 servirá como referencia de recarga para TL0 quando houve overflow neste byte. No modo 2 o máximo valor que podemos contar com a utilização de TL0 é 2^8 ou seja 256. Como queremos fazer a contagem de 640 pulsos a estratégia escolhida foi separar esses 640 pulsos em contagens intermediárias de 160 pulsos. Para que sejam contados 160 ciclos de inst. em cada ciclo o valor de recarga em TH0 deverá ser de: 256 - 160 = 96 = 0x60;
+    resolução: Para que sejam contados 160 ciclos de instrução em cada ciclo o valor de recarga em TH0 deverá ser de: 256 - 160 = 96 = 0x60;
 
-    TIMER 0 + MODO 2 + 640 ciclos de inst.
+    TIMER 0 + MODO 2 + 160 ciclos de inst.
              (8 bits) -> auto-recarga
 */
 
@@ -25,6 +25,8 @@
 #define TL1_VALUE 0x00 // 0000 0000
 
 #define MESSAGE_TO_SEND "Microcontrolador"
+
+#define P2_SET_BY_USER 0xAA // just an example value 
 
 struct TMOD_init_struct 
 { 
@@ -51,8 +53,9 @@ void timer_init(void)
  }
 
 void c51_tmr0(void);
+void c51_ext1(void);
 
-unsigned char cycle_aux = 0;
+unsigned char state = 0;
 
 void main(void) 
 {
@@ -62,23 +65,45 @@ void main(void)
 
     message_ptr = message;
 
+    P2 = P2_SET_BY_USER;
+
     timer_init();
     TH0 = TH0_VALUE; 
     TL0 = TL0_VALUE; 
 
     ET0 = 1;
+    EX1 = 1;
     EA = 1; 
+
+    IT1 = 1; /* interrupção externa 1 será 
+                sensível a borda de descida */
+
     TR0 = 1;
 
     while(1) {
-        while (cycle_aux%4 != 0); 
-        cycle_aux = 0;
-        P1 = *(message_ptr+aux++);
-        if (aux == 16) aux = 0;
+        while(state == 0); 
+        if(state == 1)
+        {
+            if(state != 2) state = 0; /*
+                                        Tests if external interruption was not set while "if(state = 1)" code is running.
+                                      */
+            P1 = *(message_ptr+aux++);
+            if (aux == 16) aux = 0;
+        }
+        if (state == 2)
+        {
+            state = 0;
+            TH0 = P2;
+        }
     } 
 } 
 
 void c51_tmr0(void) interrupt 1 
 {
-    cycle_aux++;
+    state = 1;
+} 
+
+void c51_ext1(void) interrupt 2 
+{
+    state = 2;
 } 

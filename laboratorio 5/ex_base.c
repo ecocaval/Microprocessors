@@ -3,7 +3,7 @@
     ciclos de instrução (isto é, clock do cristal/12),
     utilizando para TMOD_auxorização o timer 0 no modo 1.
 
-    TIMER 0 + MODO 1 + 100 pulsos de clock
+    TIMER 0 + MODO 1 + 100 ciclos de inst.
              (16 bits)
 */
 
@@ -52,11 +52,11 @@ void timer_init(void)
     // no need to shift since timer 0 corresponds to the 4 LSB
  }
 
-void c51_tmr0 (void);
+void c51_tmr0(void);
 
 unsigned char state = 0;
 
-void main (void) 
+void main(void) 
 {
     unsigned char code message[]= MESSAGE_TO_SEND;
     unsigned char code *message_ptr;
@@ -73,7 +73,7 @@ void main (void)
     EA = 1; 
     TR0 = 1;
 
-    while (1) {
+    while(1) {
         while (state == 0);
         state = 0;
         P1 = *(message_ptr+aux++);
@@ -85,7 +85,7 @@ void main (void)
    remember interrupt 1 => timer 0
             interrupt 3 => timer 1
 */
-void c51_tmr0 (void) interrupt 1 
+void c51_tmr0(void) interrupt 1 
 {
     TH0 = TH0_VALUE;
     TL0 = TL0_VALUE;
