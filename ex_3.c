@@ -1,9 +1,13 @@
 /**
-    @brief Enviar caracteres para a porta P1 em intervalos de 100 
-    ciclos de instrução (isto é, clock do cristal/12),
-    utilizando para TMOD_auxorização o timer 0 no modo 1.
+    @brief Refaça o programa anterior, utilizando o timer1 no modo 0, 
+    para que cada caractere seja enviado em intervalos de 640 ciclos
+    de instrução (clock do cristal/12).
 
-    TIMER 0 + MODO 1 + 100 pulsos de clock
+    resolução: no modo 0 serão utilizados apenas 5 bits em TL1 e 8 bits
+    em TH1, desta forma o valor máximo armazenado em TL1 será 2^5 = 32.
+    Desta forma, são necessárias 20 contagens completas de TL1 para contabilizar 640 pulsos de instrução. TH1 deverá ser settado de forma a garantir overflow (TFx = 1) quando estes 20 ciclos tiverem sido completos. Desta forma TH1 = 0xFF - 20 = 256 - 20 = 236 = 0xEC ;
+
+    TIMER 1 + MODO 0 + 640 pulsos de clock
 */
 
 #include <reg51.h>
@@ -17,10 +21,10 @@
 #define TMR_CNTR_GATE_LOW     0x00 // 0000 0000
 #define TMR_CNTR_GATE_HIGH    0x08 // 0000 1000
 
-#define TH0_VALUE 0xFF // 1111 1111
-#define TL0_VALUE 0x9C // 1001 1100
+#define TH0_VALUE 0x00 // 0000 0000
+#define TL0_VALUE 0x00 // 0000 0000
 
-#define TH1_VALUE 0x00 // 0000 0000
+#define TH1_VALUE 0xEC // 1110 1100
 #define TL1_VALUE 0x00 // 0000 0000
 
 #define MESSAGE_TO_SEND "Microcontrolador"
@@ -36,22 +40,20 @@ void timer_init(void)
 {
     unsigned char TMOD_aux;
 
-    timer_1.mode = 0x00; // set timer 1 mode
-    timer_1.cntr_tmr = 0x00; // set timer 1 to counter or timer
-    timer_1.gate = 0x00; // set gate = '1' or gate = '0'
+    timer_1.mode = TMR_CNTR_MODE_0;
+    timer_1.cntr_tmr = TMR_CNTR_SET_TO_TMR;
+    timer_1.gate = TMR_CNTR_GATE_LOW;
 
     TMOD_aux = (timer_1.mode | timer_1.cntr_tmr | timer_1.gate) << 4;
-    // shifts 4 LSB to 4 MSB 
 
-    timer_0.mode = TMR_CNTR_MODE_1; // set timer 0
-    timer_0.cntr_tmr = TMR_CNTR_SET_TO_TMR; // set timer 0 to counter or timer 
-    timer_0.gate = TMR_CNTR_GATE_LOW; // set gate = '1' or gate ='0'
+    timer_0.mode = 0x00; 
+    timer_0.cntr_tmr = 0x00;  
+    timer_0.gate = 0x00; 
 
     TMOD = TMOD_aux | (timer_0.mode | timer_0.cntr_tmr | timer_0.gate);
-    // no need to shift since timer 0 corresponds to the 4 LSB
  }
 
-void c51_tmr0 (void);
+void c51_tmr1 (void);
 
 unsigned char state = 0;
 
@@ -64,13 +66,12 @@ void main (void)
     message_ptr = message;
 
     timer_init();
-    TH0 = TH0_VALUE; 
-    TL0 = TL0_VALUE; /* .: TH0 << TL0 => 65436 so after 
-                     100 clock pulses TFX is set to 1*/
+    TH1 = TH1_VALUE; 
+    TL1 = TL1_VALUE; 
 
-    ET0 = 1;
+    ET1 = 1;
     EA = 1; 
-    TR0 = 1;
+    TR1 = 1;
 
     while (1) {
         while (state == 0);
@@ -80,9 +81,9 @@ void main (void)
     } 
 } 
 
-void c51_tmr0 (void) interrupt 1 
+void c51_tmr1 (void) interrupt 3 
 {
-    TH0 = TH0_VALUE;
-    TL0 = TL0_VALUE;
+    TH1 = TH1_VALUE; 
+    TL1 = TL1_VALUE; 
     state++;
 } 

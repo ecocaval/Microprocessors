@@ -5,7 +5,9 @@
 
     resolução: no modo 0 serão utilizados apenas 5 bits em TL1 e 8 bits
     em TH1, desta forma o valor máximo armazenado em TL1 será 2^5 = 32.
-    Desta forma, são necessárias 20 contagens completas de TL1 para contabilizar 620 pulsos de instrução. TH1 deverá ser settado de forma a garantir overflow (TFx = 1) quando estes 20 ciclos tiverem sido completos. Desta forma TH1 = 0xFF - 20 = 256 - 20 = 236 = 0xEC ;
+    Desta forma, são necessárias 20 contagens completas de TL1 para contabilizar 640 pulsos de instrução. TH1 deverá ser settado de forma a garantir overflow (TFx = 1) quando estes 20 ciclos tiverem sido completos. Desta forma TH1 = 0xFF - 20 = 256 - 20 = 236 = 0xEC ;
+
+    TIMER 1 + MODO 0 + 640 pulsos de clock
 */
 
 #include <reg51.h>
@@ -19,10 +21,10 @@
 #define TMR_CNTR_GATE_LOW     0x00 // 0000 0000
 #define TMR_CNTR_GATE_HIGH    0x08 // 0000 1000
 
-#define TH0_VALUE 0x00 // 1111 1111
-#define TL0_VALUE 0x00 // 1001 1010
+#define TH0_VALUE 0x00 // 0000 0000
+#define TL0_VALUE 0x00 // 0000 0000
 
-#define TH1_VALUE 0x00 // 0000 0000
+#define TH1_VALUE 0xEC // 1110 1100
 #define TL1_VALUE 0x00 // 0000 0000
 
 #define MESSAGE_TO_SEND "Microcontrolador"
@@ -64,13 +66,12 @@ void main (void)
     message_ptr = message;
 
     timer_init();
-    TH0 = 0xFF; 
-    TL0 = 0x9C; /* .: TH0 << TL0 => 65436 so after 
-                100 clock pulses TFX is set to 1*/
+    TH1 = TH1_VALUE; 
+    TL1 = TL1_VALUE; 
 
-    ET0 = 1;
+    ET1 = 1;
     EA = 1; 
-    TR0 = 1;
+    TR1 = 1;
 
     while (1) {
         while (state == 0);
@@ -80,9 +81,9 @@ void main (void)
     } 
 } 
 
-void c51_tmr1 (void) interrupt 1 
+void c51_tmr1 (void) interrupt 3 
 {
-    TL0 = 0x9C;
-    TH0 = 0xFF;
+    TH1 = TH1_VALUE; 
+    TL1 = TL1_VALUE; 
     state++;
 } 
