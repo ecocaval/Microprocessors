@@ -1,7 +1,15 @@
 /**
-    @brief Faça um programa que transmita, bit a bit, o dado AAH pelo pino 0 da porta P1. O dado deve ser transmitido do bit menos significativo para omais significativo. O nível lógico de cada bit deve ser mantido no pino pelo intervalo de 60000 ciclos de instrução (clock do cristal/12). Utilize o timer1 no modo 1 para estabelecer tal período. Ao término do procedimento, volte a repetí-lo.
+    @brief Faça um programa que transmita, bit a bit, o dado AAH pelo pino 0 da 
+    porta P1. O dado deve ser transmitido do bit menos significativo para o mais 
+    significativo. O nível lógico de cada bit deve ser mantido no pino pelo 
+    intervalo de 60000 ciclos de instrução (clock do cristal/12). Utilize o 
+    timer1 no modo 1 para estabelecer tal período. Ao término do procedimento, 
+    volte a repetí-lo.
 
-    Resolucao: Como estamos no modo 1 ambos TH1 e TL1 possuirão 8 bits, dessa forma o maior valor armazenado por ambos será 2^16 = 65536. Como queremos que o overflow em TF1 ocorra a cada 60000 ciclos de instrução devemos setar (TH1 << 4) | TL1 = 65536 - 60000 = 5536 = 0x15A0 .: TH1 = 0x15 e TL1 = 0xA0.
+    Resolucao: Como estamos no modo 1 ambos TH1 e TL1 possuirão 8 bits, dessa 
+    forma o maior valor armazenado por ambos será 2^16 = 65536. Como queremos 
+    que o overflow em TF1 ocorra a cada 60000 ciclos de instrução devemos setar 
+    (TH1 << 4) | TL1 = 65536 - 60000 = 5536 = 0x15A0 .: TH1 = 0x15 e TL1 = 0xA0.
 
     TIMER 1 + MODO 1 + 60000 ciclos de inst.
              (16 bits) 
