@@ -1,7 +1,13 @@
 /**
-    @brief Utilize o timer 0 no modo 2, para enviar os caracteres da mensagem "Microcontrolador" em intervalos de 160 ciclos de instrução para a porta P1. Caso ocorra interrupção externa 1 (solicitada por borda de descida), e sempre que a mesma ocorrer, ler dado da porta P2 (a ser especificado pelo usuário); este valor deve ser utilizado pelo timer 0 no modo 2 para determinar o valor de início de contagem em TH0.
+    @brief Utilize o timer 0 no modo 2, para enviar os caracteres da mensagem 
+    "Microcontrolador" em intervalos de 160 ciclos de instrução para a porta P1.
+    Caso ocorra interrupção externa 1 (solicitada por borda de descida), e 
+    sempre que a mesma ocorrer, ler dado da porta P2 (a ser especificado pelo 
+    usuário); este valor deve ser utilizado pelo timer 0 no modo 2 para determinar
+    o valor de início de contagem em TH0.
 
-    Resolucao: Para que sejam contados 160 ciclos de instrução em cada ciclo o valor de recarga em TH0 deverá ser de: 256 - 160 = 96 = 0x60;
+    Resolucao: Para que sejam contados 160 ciclos de instrução em cada ciclo o
+    valor de recarga em TH0 deverá ser de: 256 - 160 = 96 = 0x60;
 
     TIMER 0 + MODO 2 + 160 ciclos de inst.
              (8 bits) -> auto-recarga
